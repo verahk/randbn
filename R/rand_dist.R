@@ -31,6 +31,7 @@ rand_dist <- function(dag, type = "cat", ...) {
   args <- list(...)
   if (type == "categorical") {
     draw_dist <- function(j, parentnodes, args) {
+      if (is.null(args$nlev)) stop("Add argument `nlev` specifying the cardinality of each node.")
       args$nlev  <- args$nlev[c(j, parentnodes)]
       args$scope <- varnames[c(j, parentnodes)]
       do.call(rand_cpt, args)
