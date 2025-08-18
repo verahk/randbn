@@ -53,6 +53,7 @@ rand_cpt <- function(nlev,
   if (method == "cm") {
     tmp <- 1/seq_len(r)
     mu <- tmp/sum(tmp)
+    p <- matrix(NA, r, q)
     for (qq in seq_len(q)){
       p[, qq] <- rDirichlet(1, alpha*mu)
       mu <- c(mu[-1], mu[1])
