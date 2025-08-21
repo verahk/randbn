@@ -66,6 +66,10 @@ Replicate with the distinct functions:
 
 ``` r
 set.seed(r)
+<<<<<<< HEAD
+
+=======
+>>>>>>> a074fce (...change example in README)
 dag  <- rand_dag(n, d) # draw an adjacency matrix 
 dist <- rand_dist(dag, "cat", nlev = nlev, alpha = 1)  # draw set of local dist
 bn   <- custom_bn(dag, dist, use_bnlearn = FALSE)       # construct bn.fit() object
