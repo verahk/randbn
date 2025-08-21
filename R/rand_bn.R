@@ -5,7 +5,7 @@
 #'
 #' @param dag (integer matrix) adjacency matrix.
 #' @param type (character) type of distribution.
-#' @param ...
+#' @param ... additional arguments sent to [rand_dist()]
 #'
 #' @return a `bnlearn::bn.fit` object
 
@@ -30,7 +30,7 @@
 #'
 #' # replicate with rand_bn()
 #' set.seed(007)
-#' bn2 <- rand_bn(3, 2, "cat", nlev = nlev)
+#' bn2 <- rand_bn(3, 2, "cat", nlev = rep(3, n))
 #' stopifnot(all.equal(bn, bn2))
 #'
 
@@ -54,7 +54,7 @@ custom_bn <- function(dag, dist, use_bnlearn = TRUE) {
     bnlearn::amat(bn) <- dag
     return(bnlearn::custom.fit(bn, dist))
   } else {
-    bn <- setNames(vector("list", n), varnames)
+    bn <- stats::setNames(vector("list", n), varnames)
     for (j in seq_along(bn)) {
       node <- list(node = varnames[j],
                    parents = varnames[which(dag[, j] == 1)],

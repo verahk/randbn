@@ -56,7 +56,7 @@ rand_cpt <- function(nlev,
     p <- matrix(NA, r, q)
     for (qq in seq_len(q)){
       p[, qq] <- rDirichlet(1, alpha*mu)
-      mu <- c(mu[-1], mu[1])
+      mu <- c(mu[r], mu[-r])
     }
   } else {
     # draw one Dirichlet vector for each parent config

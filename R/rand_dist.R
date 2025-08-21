@@ -20,8 +20,8 @@
 #'
 #' dag  <- matrix(0, 3, 3, dimnames = list(c("Z", "X", "Y"), c("Z", "X", "Y")))
 #' dag[upper.tri(dag)] <- 1
-#' rand_dist(dag, "cat", nlev = rep(3, 3))
-#'
+#' rand_dist(dag, "cat", nlev = rep(3, 3), alpha = 1)
+#' rand_dist(dag, "cat", nlev = rep(3, 3), method = "cm", alpha = 10)
 rand_dist <- function(dag, type = "cat", rand_local_dist = NULL, ...) {
   type <- match.arg(type, c("categorical"))
 
@@ -36,6 +36,7 @@ rand_dist <- function(dag, type = "cat", rand_local_dist = NULL, ...) {
       if (is.null(args$nlev)) stop("Add argument `nlev` specifying the cardinality of each node.")
       args$nlev  <- args$nlev[c(j, parentnodes)]
       args$scope <- varnames[c(j, parentnodes)]
+
       do.call(rand_cpt, args)
     }
   }
