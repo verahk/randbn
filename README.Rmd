@@ -39,8 +39,8 @@ This is a basic example which shows you how to solve a common problem:
 library(randbn)
 
 r <- 007           # seed number
-n <- 10            # number of nodes
-d <- 3             # expected number of neighbours
+n <- 3             # number of nodes
+d <- 1             # expected number of neighbours
 nlev <- rep(2, n)  # cardinality of each variable
 
 set.seed(r)
@@ -49,7 +49,7 @@ rand_bn(n, d, "cat", nlev = nlev, alpha = 1)
 Replicate with the distinct functions:
 ```{r}
 set.seed(r)
-dag  <- rand_dag(10, 3) # draw an adjacency matrix 
+dag  <- rand_dag(n, d) # draw an adjacency matrix 
 dist <- rand_dist(dag, "cat", nlev = nlev, alpha = 1)  # draw set of local dist
 bn   <- custom_bn(dag, dist, use_bnlearn = FALSE)       # construct bn.fit() object
 ```
