@@ -11,13 +11,13 @@ rand_dag(n, d, varnames = NULL, weighted = FALSE)
 
 \item{d}{(integer) expected number of neighbours}
 
-\item{varnames}{(character vector) node names. Defaults to `c("X1", "X2, ..., "Xn")`.}
+\item{varnames}{(character vector) node names. Defaults to \verb{c("X1", "X2, ..., "Xn")}.}
 
 \item{weighted}{(boolean) wheter each edge should be assigned weights. Default is FALSE.}
 }
 \value{
-a n-by-n adjacency matrix
+a n-by-n adjacency matrix where element \verb{(i, j)} is 1 if there is an edge from node \code{i} to \code{j} and 0 otherwise.
 }
 \description{
-Wrapper around [pcalg::randDAG] returning a adjacency matrix rather than a graphNEL object
+Wrapper around \link[pcalg:randDAG]{pcalg::randDAG} returning a adjacency matrix rather than a graphNEL object
 }

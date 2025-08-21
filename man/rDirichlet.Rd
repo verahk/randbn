@@ -6,6 +6,13 @@
 \usage{
 rDirichlet(n, alpha, k = length(alpha))
 }
+\arguments{
+\item{n}{sample size}
+
+\item{alpha}{hyperparameters}
+
+\item{k}{number of outcomes ( = \code{length(alpha)})}
+}
 \description{
 Wrapper around rBeta2009::rdirichlet that always return an n-by-k matrix
 }

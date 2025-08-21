@@ -3,12 +3,13 @@
 #'
 #' Draw a random DAG and a distribution over the DAG, and store the BN as a `bnlearn::bn.fit` object.
 #'
-#' @param dag (integer matrix) adjacency matrix.
-#' @param type (character) type of distribution.
+#' @inheritParams rand_dag
+#' @inheritParams rand_dist
+#' @inheritParams custom_bn
 #' @param ... additional arguments sent to [rand_dist()]
 #'
 #' @return a `bnlearn::bn.fit` object
-
+#' @export
 #' @examples
 #'
 #' n <- 3
@@ -40,33 +41,8 @@ rand_bn <- function(n, d, type = "cat", use_bnlearn = TRUE, ...) {
   custom_bn(dag, dist, use_bnlearn)
 }
 
-custom_bn <- function(dag, dist, use_bnlearn = TRUE) {
 
-  varnames <- colnames(dag)
-  if (is.null(varnames)) {
-    varnames <- paste0("X", seq_len(ncol(dag)))
-  }
 
-  if (use_bnlearn) {
-    colnames(dag) <- rownames(dag) <- varnames
-    names(dist) <- varnames
-    bn <- bnlearn::empty.graph(colnames(dag))
-    bnlearn::amat(bn) <- dag
-    return(bnlearn::custom.fit(bn, dist))
-  } else {
-    bn <- stats::setNames(vector("list", n), varnames)
-    for (j in seq_along(bn)) {
-      node <- list(node = varnames[j],
-                   parents = varnames[which(dag[, j] == 1)],
-                   children = varnames[which(dag[, j] == 1)],
-                   prob = dist[[j]])
-      class(node) <- "bn.fit.dnode"
-      bn[[j]] <- node
-    }
-    class(bn) <- c("bn.fit", "bn.fit.dnet")
-    return(bn)
-  }
-}
 
 
 

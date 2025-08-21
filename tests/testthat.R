@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(rand)
+library(randbn)
 
-test_check("rand")
+test_check("randbn")

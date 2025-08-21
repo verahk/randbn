@@ -1,4 +1,9 @@
 #' Wrapper around rBeta2009::rdirichlet that always return an n-by-k matrix
+#'
+#' @param n sample size
+#' @param alpha hyperparameters
+#' @param k number of outcomes ( = `length(alpha)`)
+#' @export
 rDirichlet <- function(n, alpha, k = length(alpha)){
   if (k == 2){
     p <- matrix(numeric(), n, 2)

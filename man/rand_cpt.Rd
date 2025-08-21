@@ -14,25 +14,25 @@ the rest to its parents.}
 \item{alpha}{(numeric vector)}
 
 \item{method}{(character) Which method to use. The direct method (default) is
-to assume `alpha` specifies the Dirichlet hyperparameters associated with each
-outcome. Specifically, a symmetric Dirichlet distribution if `alpha` is a constant,
-a single Dirichlet distribution if `alpha` is a vector of length `nlev[1]` or
-a (possibly) unique Dirichlet distribution for each parent level if `alpha` is
-of length `prod(nlev)`. If method equals `CM`, each conditional distribution is
-drawn by perturbing a vector of means as described in XX.  `alpha` is then taken
+to assume \code{alpha} specifies the Dirichlet hyperparameters associated with each
+outcome. Specifically, a symmetric Dirichlet distribution if \code{alpha} is a constant,
+a single Dirichlet distribution if \code{alpha} is a vector of length \code{nlev[1]} or
+a (possibly) unique Dirichlet distribution for each parent level if \code{alpha} is
+of length \code{prod(nlev)}. If method equals \code{CM}, each conditional distribution is
+drawn by perturbing a vector of means as described in XX.  \code{alpha} is then taken
 to be the imaginary sample size / precision parameter controlling the variance of
 the Dirichlet distribution.}
 
-\item{scope}{(character vector) names of the variables. Defaults to `names(nlev)`.}
+\item{scope}{(character vector) names of the variables. Defaults to \code{names(nlev)}.}
 }
 \value{
-an array with dimension `nlev` representing a CPT.
+an array with dimension \code{nlev} representing a CPT.
 }
 \description{
 Construct a random conditional probability table (CPT) by sampling independently
 a vector of probabilities from a Dirichlet distribution for each parent configuration.
 If the scope of the CPT is specified, the function returns an array with
-named dimensions, a format accepted for local distributions by [bnlearn::bn.fit.dnode].
+named dimensions, a format accepted for local distributions by \link[bnlearn:bn.fit.class]{bnlearn::bn.fit.dnode}.
 }
 \examples{
 
@@ -50,4 +50,3 @@ cpt
 cpt <- rand_cpt(nlev, local_struct = "tree", prob = 1, maxdepth = .5)
 }
 }
-\keyword{internal}

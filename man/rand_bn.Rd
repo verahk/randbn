@@ -7,17 +7,21 @@
 rand_bn(n, d, type = "cat", use_bnlearn = TRUE, ...)
 }
 \arguments{
-\item{type}{(character) type of distribution.}
+\item{n}{(integer) number of nodes}
 
-\item{...}{}
+\item{d}{(integer) expected number of neighbours}
 
-\item{dag}{(integer matrix) adjacency matrix.}
+\item{type}{(character) type of distribution. Ignored if \code{rand_local_dist} is not \code{NULL}.}
+
+\item{use_bnlearn}{use \code{\link[bnlearn:bn.fit]{bnlearn::custom.fit()}} to construct the bn.fit object (implies a set of checks of the input) or hardcode such an object (with no checks).}
+
+\item{...}{additional arguments sent to \code{\link[=rand_dist]{rand_dist()}}}
 }
 \value{
-a `bnlearn::bn.fit` object
+a \code{bnlearn::bn.fit} object
 }
 \description{
-Draw a random DAG and a distribution over the DAG, and store the BN as a `bnlearn::bn.fit` object.
+Draw a random DAG and a distribution over the DAG, and store the BN as a \code{bnlearn::bn.fit} object.
 }
 \examples{
 

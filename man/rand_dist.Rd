@@ -9,13 +9,13 @@ rand_dist(dag, type = "cat", rand_local_dist = NULL, ...)
 \arguments{
 \item{dag}{(integer matrix) an adjacency matrix}
 
-\item{type}{(character) type of distribution. Ignored if `rand_local_dist` is not `NULL`.}
+\item{type}{(character) type of distribution. Ignored if \code{rand_local_dist} is not \code{NULL}.}
 
-\item{rand_local_dist}{(function) a function with arguments `j, parentnodes, args` that generates a random distribution.
-If `NULL` (default), and `type == categorical` then the function `rand::rand_cpt` is used.}
+\item{rand_local_dist}{(function) a function with arguments \verb{j, parentnodes, args} that generates a random distribution.
+If \code{NULL} (default), and \code{type == categorical} then the function \code{rand::rand_cpt} is used.}
 
 \item{...}{additional arguments for the function producing each local distribution.
-See [rand_cpt()] for categorical distributions.}
+See \code{\link[=rand_cpt]{rand_cpt()}} for categorical distributions.}
 }
 \value{
 a list with distributions
@@ -23,7 +23,7 @@ a list with distributions
 \description{
 Draw a random distribution over a DAG.
 The function returns a list of CPTs (if `type = "categorical") stored
-in a format matching [bnlearn::bn.fit] class and can be used to construct
+in a format matching \link[bnlearn:bn.fit]{bnlearn::bn.fit} class and can be used to construct
 such objects.
 }
 \examples{
@@ -34,5 +34,5 @@ rand_dist(dag, "cat", nlev = rep(3, 3), alpha = 1)
 rand_dist(dag, "cat", nlev = rep(3, 3), method = "cm", alpha = 10)
 }
 \seealso{
-[rand_cpt()]
+\code{\link[=rand_cpt]{rand_cpt()}}
 }

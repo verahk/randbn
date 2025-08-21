@@ -41,7 +41,7 @@ rand_dist <- function(dag, type = "cat", rand_local_dist = NULL, ...) {
     }
   }
 
-  dist <- setNames(vector("list", n), varnames)
+  dist <- stats::setNames(vector("list", n), varnames)
   for (j in seqn) {
     parentnodes <- seqn[dag[, j] == 1]
     dist[[j]] <- rand_local_dist(j, parentnodes, args)

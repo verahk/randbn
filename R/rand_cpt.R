@@ -21,7 +21,7 @@
 #' @param scope (character vector) names of the variables. Defaults to `names(nlev)`.
 #'
 #' @return an array with dimension `nlev` representing a CPT.
-#' @keywords internal
+#' @export
 #'
 #' @examples
 #'
@@ -66,7 +66,7 @@ rand_cpt <- function(nlev,
       p <- t(rDirichlet(q, alpha, r))
     } else if (length(alpha) == q*r) {
       p <- vapply(split(alpha, rep(seq_len(q), each = r)),
-                  bida:::rDirichlet, n = 1, k = r,
+                  rDirichlet, n = 1, k = r,
                   numeric(r))
     } else {
       stop("The hyperparamter alpha must be either length 1, nlev[1] or prod(nlev).")
