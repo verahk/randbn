@@ -1,0 +1,59 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# randbn
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+
+This repository contains a small R-package with function I use frequently to draw random Bayesian networks. It is based on routines provided in the `pcalg` and `bnlearn` package.
+
+
+## Installation
+
+You can install the development version of randbn from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("verahk/randbn")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(randbn)
+
+r <- 007           # seed number
+n <- 3             # number of nodes
+d <- 1             # expected number of neighbours
+nlev <- rep(2, n)  # cardinality of each variable
+
+set.seed(r)
+rand_bn(n, d, "cat", nlev = nlev, alpha = 1)
+```
+Replicate with the distinct functions:
+```{r}
+set.seed(r)
+dag  <- rand_dag(n, d) # draw an adjacency matrix 
+dist <- rand_dist(dag, "cat", nlev = nlev, alpha = 1)  # draw set of local dist
+bn   <- custom_bn(dag, dist, use_bnlearn = FALSE)       # construct bn.fit() object
+bn
+```
+
+
+
