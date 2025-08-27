@@ -10,7 +10,6 @@
 #'  the rest to its parents.
 #' @param alpha (numeric vector) hyperparameters for the Dirichlet distribution(s)
 #'  each parameter vector is drawn from.
-#' @param ess (numeric constant) imaginary sample size 
 #' @param dimnms (list) dimnames of CPT.
 #' @param scope (character vector) names of the dimnames. If `scope` is specified and
 #' `dimnms = NULL`, the dimnames for the `j`th margin is sat equal to `0, 1, .., dims[j]-1.`
@@ -98,10 +97,10 @@ rand_cpt <- function(dims,
 }
 
 #' @rdname rand_cpt 
-#' @details 
-#' `rand_cpt()` draw a vector from a single or a set of Dirichlet distribution as specified 
-#' by `alpha`. 
-
+#' @param ess (numeric constant) imaginary sample size 
+#' @param shuffle (logical) if `FALSE`, the mean vector is peturbed in the order of
+#' each parent configuration. If `TRUE`, it is randomly peturbed with respect
+#' to the parent configurations.
 #' @export 
 rand_cpt_cm <- function(dims, ess = 10, shuffle = FALSE, dimnms = NULL, scope = names(dimnms)) {
   r <- dims[1]
