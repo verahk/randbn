@@ -8,18 +8,18 @@ parents <- "X1"
 children <- "X2"
 prob <- rand_cpt(dims = c(4, 2), alpha = 1, scope = c(name, parents))
 dimnames(prob)   # CPT must have dimnames
-new_node <- new_node(name, parents, children, prob)
-class(new_node)
-new_node
+node <- new_node(name, parents, children, prob)
+class(node)
+node
 
 # add node to bn 
-bn2 <- add_node_to_bn(bn, new_node)
+bn2 <- add_node_to_bn(bn, node)
 ls.str(bn2)
 bnlearn::amat(bn2)
 
 # the new DAG structure is checked with pcalg::isValidGraph
-new_node <- new_node(name, parents, children = parents, prob)
-add_node_to_bn(bn, new_node) # returns NULL + message from pcalg::isValidGraph
+node <- new_node(name, parents, children = parents, prob)
+add_node_to_bn(bn, node) # returns NULL + message from pcalg::isValidGraph
 
 # add new parent to a node 
 child_node <- bn$X2

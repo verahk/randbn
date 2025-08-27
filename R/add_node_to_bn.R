@@ -15,22 +15,22 @@
 #' `add_node_to_bn()` returns a [bnlearn::bn.fit] object, where `node` is added to the original object `bn`.
 #' @export 
 #' @example inst/example/example_add_node_to_bn.R
-add_node_to_bn <- function(bn, new_node, generate_local_dist = randbn::rand_cpt, ...) {
+add_node_to_bn <- function(bn, node, generate_local_dist = randbn::rand_cpt, ...) {
 
   
   # check that node the additional node results in a valid DAG
-  if (! check_new_node(bn, new_node)) return (NULL)
+  if (! check_new_node(bn, node)) return (NULL)
   
   # add node to new bn 
   new_bn <- unclass(bn)
-  new_bn[[node]] <- new_node
+  new_bn[[node$node]] <- node
   
   # add local distributions to every child of the new node
-  for (child in new_node$children){
-    new_bn[[child]] <- add_parent_to_child(new_bn[[child]], new_node, generate_local_dist, ...)
+  for (child in node$children){
+    new_bn[[child]] <- add_parent_to_child(new_bn[[child]], node, generate_local_dist, ...)
   }
-  for (parent in new_node$parents) {
-    new_bn[[parent]]$children <- c(new_bn[[parent]]$children, node)
+  for (parent in node$parents) {
+    new_bn[[parent]]$children <- c(new_bn[[parent]]$children, node$node)
   }
   # set class of augmented network equal to the original 
   class(new_bn) <- class(bn)
@@ -39,17 +39,17 @@ add_node_to_bn <- function(bn, new_node, generate_local_dist = randbn::rand_cpt,
 
 check_new_node <- function(bn, node) {
   # name of node 
-  stopifnot(is.character(bn$node))
-  stopifnot(length(bn$node) == 1)
-  stopifnot(match(bn$node, names(bn), 0L) == 0)
+  stopifnot(is.character(node$node))
+  stopifnot(length(node$node) == 1)
+  stopifnot(match(node$node, names(bn), 0L) == 0)
   
   # name of children
-  stopifnot(is.character(bn$children))
-  stopifnot(length(bn$children) == 0 || all(match(bn$children, names(bn), 0L) == 0))
+  stopifnot(is.character(node$children))
+  stopifnot(length(node$children) == 0 || all(match(node$children, names(bn), 0L) > 0))
   
   # name of parents 
-  stopifnot(is.character(bn$parents))
-  stopifnot(length(bn$parents) == 0 || all(match(bn$parents, names(bn), 0L) == 0))
+  stopifnot(is.character(node$parents))
+  stopifnot(length(node$parents) == 0 || all(match(node$parents, names(bn), 0L) > 0))
   
   # check if augmented dag is valid 
   dag <- bnlearn::amat(bn)

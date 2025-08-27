@@ -6,12 +6,12 @@
 \alias{new_node}
 \title{Add a new node to a Bayesian network}
 \usage{
-add_node_to_bn(bn, new_node, generate_local_dist = randbn::rand_cpt, ...)
+add_node_to_bn(bn, node, generate_local_dist = randbn::rand_cpt, ...)
 
 add_parent_to_child(
   child_node,
   parent_node,
-  generate_local_dist = rand_cpt,
+  generate_local_dist = randbn::rand_cpt,
   ...
 )
 
@@ -19,8 +19,6 @@ new_node(name, parents = character(0), children = character(0), prob)
 }
 \arguments{
 \item{bn}{\code{bnlearn::bn.fit} object. Currently only discrete networks.}
-
-\item{new_node}{a \code{bnlearn::bn.fit.dnode} object}
 
 \item{generate_local_dist}{function that generates a CPT.
 First argument is assumed to be the dimension of the new rows in the CPT,
@@ -39,6 +37,8 @@ By default, \code{generate_local_dist = rand_cpt}.}
 \item{children}{name of children}
 
 \item{prob}{an array with named dimensions, representing the local distributions of the node.}
+
+\item{new_node}{a \code{bnlearn::bn.fit.dnode} object}
 }
 \value{
 \code{add_node_to_bn()} returns a \link[bnlearn:bn.fit]{bnlearn::bn.fit} object, where \code{node} is added to the original object \code{bn}.
@@ -63,18 +63,18 @@ parents <- "X1"
 children <- "X2"
 prob <- rand_cpt(dims = c(4, 2), alpha = 1, scope = c(name, parents))
 dimnames(prob)   # CPT must have dimnames
-new_node <- new_node(name, parents, children, prob)
-class(new_node)
-new_node
+node <- new_node(name, parents, children, prob)
+class(node)
+node
 
 # add node to bn 
-bn2 <- add_node_to_bn(bn, new_node)
+bn2 <- add_node_to_bn(bn, node)
 ls.str(bn2)
 bnlearn::amat(bn2)
 
 # the new DAG structure is checked with pcalg::isValidGraph
-new_node <- new_node(name, parents, children = parents, prob)
-add_node_to_bn(bn, new_node) # returns NULL + message from pcalg::isValidGraph
+node <- new_node(name, parents, children = parents, prob)
+add_node_to_bn(bn, node) # returns NULL + message from pcalg::isValidGraph
 
 # add new parent to a node 
 child_node <- bn$X2

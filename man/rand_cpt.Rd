@@ -7,7 +7,13 @@
 \usage{
 rand_cpt(dims, alpha = 1, dimnms = NULL, scope = names(dimnames))
 
-rand_cpt_cm(dims, ess = 10, dimnms = NULL, scope = names(dimnms))
+rand_cpt_cm(
+  dims,
+  ess = 10,
+  shuffle = FALSE,
+  dimnms = NULL,
+  scope = names(dimnms)
+)
 }
 \arguments{
 \item{dims}{(integer vector) of cardinality of the outcome variable and the
@@ -62,8 +68,16 @@ dimnames(cpt)
 cpt <- rand_cpt(2:4, scope = c("Y", "X", "Z"))
 cpt
 
+# draw each vector from a skewed Dirichlet
+cpt <- rand_cpt(2:4, alpha = c(.1, .9)*1000, scope = c("Y", "X", "Z"))
+cpt
+
 # cm-method with alternating means
 cpt <- rand_cpt_cm(rep(2, 3), ess = 1000, scope = c("Y", "X", "Z"))
+cpt  # every second parameter vector is drawn from the same Dirichlet
+
+# cm-method with randomly peturbed mean vector
+cpt <- rand_cpt_cm(rep(2, 3), ess = 1000, shuffle = TRUE, scope = c("Y", "X", "Z"))
 cpt  # every second parameter vector is drawn from the same Dirichlet
 
 # with local structure
