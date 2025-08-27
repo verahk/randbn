@@ -19,13 +19,8 @@ add_node_to_bn <- function(bn, new_node, generate_local_dist = randbn::rand_cpt,
 
   
   # check that node the additional node results in a valid DAG
-  node <- new_node$node # name of new node 
-  stopifnot(is.character(node) && !node %in% names(bn))
-  if (!check_dag_with_new_node(bn, new_node)) {
-    return(NULL)
-  }
+  if (! check_new_node(bn, new_node)) return (NULL)
   
-
   # add node to new bn 
   new_bn <- unclass(bn)
   new_bn[[node]] <- new_node
@@ -42,18 +37,31 @@ add_node_to_bn <- function(bn, new_node, generate_local_dist = randbn::rand_cpt,
   return(new_bn)
 }
 
-
-check_dag_with_new_node <- function(bn, node) {
+check_new_node <- function(bn, node) {
+  # name of node 
+  stopifnot(is.character(bn$node))
+  stopifnot(length(bn$node) == 1)
+  stopifnot(match(bn$node, names(bn), 0L) == 0)
+  
+  # name of children
+  stopifnot(is.character(bn$children))
+  stopifnot(length(bn$children) == 0 || all(match(bn$children, names(bn), 0L) == 0))
+  
+  # name of parents 
+  stopifnot(is.character(bn$parents))
+  stopifnot(length(bn$parents) == 0 || all(match(bn$parents, names(bn), 0L) == 0))
+  
+  # check if augmented dag is valid 
   dag <- bnlearn::amat(bn)
   n <- ncol(dag)
-  
   new_dag <- cbind(rbind(dag, 0), 0)
   colnames(new_dag) <- rownames(new_dag) <- c(colnames(dag), node$node)
   new_dag[node$parents, n+1] <- 1
   new_dag[n+1, node$children] <- 1
-  
-  pcalg::isValidGraph(t(new_dag), "dag", verbose = TRUE)
+  return(pcalg::isValidGraph(t(new_dag), "dag", verbose = TRUE))
 }
+
+
 
 #' @rdname add_node_to_bn
 #' @param child_node,parent_node `bn.fit.dnode` objects representing the child and its new parent.

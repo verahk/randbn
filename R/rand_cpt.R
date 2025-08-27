@@ -42,10 +42,18 @@
 #' cpt <- rand_cpt(2:4, scope = c("Y", "X", "Z"))
 #' cpt
 #' 
+#' # draw each vector from a skewed Dirichlet
+#' cpt <- rand_cpt(2:4, alpha = c(.1, .9)*1000, scope = c("Y", "X", "Z"))
+#' cpt
+#' 
 #' # cm-method with alternating means
 #' cpt <- rand_cpt_cm(rep(2, 3), ess = 1000, scope = c("Y", "X", "Z"))
 #' cpt  # every second parameter vector is drawn from the same Dirichlet
 #'
+#' # cm-method with randomly peturbed mean vector
+#' cpt <- rand_cpt_cm(rep(2, 3), ess = 1000, shuffle = TRUE, scope = c("Y", "X", "Z"))
+#' cpt  # every second parameter vector is drawn from the same Dirichlet
+#' 
 #' # with local structure
 #' \dontrun{
 #' cpt <- rand_cpt(dims, local_struct = "tree", prob = 1, maxdepth = .5)
@@ -95,14 +103,22 @@ rand_cpt <- function(dims,
 #' by `alpha`. 
 
 #' @export 
-rand_cpt_cm <- function(dims, ess = 10, dimnms = NULL, scope = names(dimnms)) {
+rand_cpt_cm <- function(dims, ess = 10, shuffle = FALSE, dimnms = NULL, scope = names(dimnms)) {
   r <- dims[1]
   q <- prod(dims[-1])
+  
+  # create matrix with means of each outcome
   tmp <- 1/seq_len(r)
   mu <- matrix(tmp/sum(tmp), r, q)
   for (qq in seq_len(q)[-1]){
     mu[, qq] <- c(mu[r, qq-1], mu[-r, qq-1])
   }
+  
+  # shuffle rows in CPT
+  indx <- seq_len(q)
+  if (shuffle) indx <- sample(indx)
+  mu <- mu[, indx]
+  
   rand_cpt(dims, alpha = ess*mu, dimnms = dimnms, scope = scope)
 }
 
