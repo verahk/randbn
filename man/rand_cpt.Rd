@@ -2,31 +2,30 @@
 % Please edit documentation in R/rand_cpt.R
 \name{rand_cpt}
 \alias{rand_cpt}
+\alias{rand_cpt_cm}
 \title{Draw a conditional probability table (CPT)}
 \usage{
-rand_cpt(nlev, alpha = 1, method = c("direct", "cm"), scope = character(), ...)
+rand_cpt(dims, alpha = 1, dimnms = NULL, scope = names(dimnames))
+
+rand_cpt_cm(dims, ess = 10, dimnms = NULL, scope = names(dimnms))
 }
 \arguments{
-\item{nlev}{(integer vector) of cardinality of the outcome variable and the
+\item{dims}{(integer vector) of cardinality of the outcome variable and the
 parent variables (the dimensions of the CPT). First element correspond to the outcome,
 the rest to its parents.}
 
-\item{alpha}{(numeric vector)}
+\item{alpha}{(numeric vector) hyperparameters for the Dirichlet distribution(s)
+each parameter vector is drawn from.}
 
-\item{method}{(character) Which method to use. The direct method (default) is
-to assume \code{alpha} specifies the Dirichlet hyperparameters associated with each
-outcome. Specifically, a symmetric Dirichlet distribution if \code{alpha} is a constant,
-a single Dirichlet distribution if \code{alpha} is a vector of length \code{nlev[1]} or
-a (possibly) unique Dirichlet distribution for each parent level if \code{alpha} is
-of length \code{prod(nlev)}. If method equals \code{CM}, each conditional distribution is
-drawn by perturbing a vector of means as described in XX.  \code{alpha} is then taken
-to be the imaginary sample size / precision parameter controlling the variance of
-the Dirichlet distribution.}
+\item{dimnms}{(list) dimnames of CPT.}
 
-\item{scope}{(character vector) names of the variables. Defaults to \code{names(nlev)}.}
+\item{scope}{(character vector) names of the dimnames. If \code{scope} is specified and
+\code{dimnms = NULL}, the dimnames for the \code{j}th margin is sat equal to \verb{0, 1, .., dims[j]-1.}}
+
+\item{ess}{(numeric constant) imaginary sample size}
 }
 \value{
-an array with dimension \code{nlev} representing a CPT.
+an array with dimension \code{dims} representing a CPT.
 }
 \description{
 Construct a random conditional probability table (CPT) by sampling independently
@@ -34,10 +33,28 @@ a vector of probabilities from a Dirichlet distribution for each parent configur
 If the scope of the CPT is specified, the function returns an array with
 named dimensions, a format accepted for local distributions by \link[bnlearn:bn.fit.class]{bnlearn::bn.fit.dnode}.
 }
+\details{
+\code{rand_cpt()} assumes \code{alpha} is the hyperparameters of the Dirichlet distribution(s)
+that each parameter vector in the CPT is sampled from.
+Each vector is sampled from
+\itemize{
+\item a single, symmetric Dirichlet if \code{length(alpha) == 1}.
+\item a single, possible non-symmetric Dirichlet if \code{length(alpha) == dims[1]}.
+\item possibly distinct, non-symmetric Dirichlets if \code{length(alpha) == prod(dims)}.
+}
+
+Hence, one can specify the Dirichlet (for each parent configuration) also by
+a vector of means \code{mu} and an equivalent sample size \code{ess}, and call \code{rand_cpt(dims, alpha = mu*ess)}.
+\code{rand_cpt_cm()} does exactly this. The mean-vector is specified and peturbated
+for each parent configuration as described in CM \link{TODO: add reference}.
+
+\code{rand_cpt()} draw a vector from a single or a set of Dirichlet distribution as specified
+by \code{alpha}.
+}
 \examples{
 
 # no parents
-cpt <- rand_cpt(nlev = 2, scope = "Y")
+cpt <- rand_cpt(dims = 2, scope = "Y")
 cpt
 dimnames(cpt)
 
@@ -45,8 +62,12 @@ dimnames(cpt)
 cpt <- rand_cpt(2:4, scope = c("Y", "X", "Z"))
 cpt
 
+# cm-method with alternating means
+cpt <- rand_cpt_cm(rep(2, 3), ess = 1000, scope = c("Y", "X", "Z"))
+cpt  # every second parameter vector is drawn from the same Dirichlet
+
 # with local structure
 \dontrun{
-cpt <- rand_cpt(nlev, local_struct = "tree", prob = 1, maxdepth = .5)
+cpt <- rand_cpt(dims, local_struct = "tree", prob = 1, maxdepth = .5)
 }
 }

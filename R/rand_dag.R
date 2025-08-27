@@ -10,8 +10,12 @@
 #' @return a n-by-n adjacency matrix where element `(i, j)` is 1 if there is an edge from node `i` to `j` and 0 otherwise.
 #' @export
 rand_dag <- function(n, d, varnames = NULL, weighted = FALSE) {
-  g <- pcalg::randDAG(n, d, weighted = weighted)
-  dag <- adjmat_from_graph(g)
+  if (n == 1) {
+    dag <- matrix(0, 1, 1)
+  } else {
+    g <- pcalg::randDAG(n, d, weighted = weighted)
+    dag <- adjmat_from_graph(g)
+  }
   if (is.null(varnames)) varnames <- paste0("X", seq_len(n))
   colnames(dag) <- rownames(dag) <- varnames
   dag

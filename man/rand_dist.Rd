@@ -2,20 +2,36 @@
 % Please edit documentation in R/rand_dist.R
 \name{rand_dist}
 \alias{rand_dist}
+\alias{rand_dist_cat}
 \title{Draw a random distribution over a DAG}
 \usage{
-rand_dist(dag, type = "cat", rand_local_dist = NULL, ...)
+rand_dist(dag, type = "cat", ...)
+
+rand_dist_cat(
+  dag,
+  nlev = lengths(levels),
+  levels = NULL,
+  rand_cpt = randbn::rand_cpt,
+  ...
+)
 }
 \arguments{
 \item{dag}{(integer matrix) an adjacency matrix}
 
-\item{type}{(character) type of distribution. Ignored if \code{rand_local_dist} is not \code{NULL}.}
-
-\item{rand_local_dist}{(function) a function with arguments \verb{j, parentnodes, args} that generates a random distribution.
-If \code{NULL} (default), and \code{type == categorical} then the function \code{rand::rand_cpt} is used.}
+\item{type}{(character) type of distribution.}
 
 \item{...}{additional arguments for the function producing each local distribution.
 See \code{\link[=rand_cpt]{rand_cpt()}} for categorical distributions.}
+
+\item{nlev, levels}{specifies the cardinality of each variable, as a vector or
+a list with outcomes for each node, respectively. Used to set dimension and
+dimmension names for each CPT, aligned with the requirements for bn.fit.dnode objects.
+If \code{levels = NULL}, the levels of node j is sat to \verb{0, 1, ..., nlev[j]-1}.
+Both arguments can not be \code{NULL}.}
+
+\item{rand_cpt}{(function) a function that generates a CPT.
+The first argument must be the dimension of the CPT, derived from \code{nlev}, i.e.
+\code{nlev[c(j, parentnodes)]} for node \code{j} with parents \code{parentnodes}.}
 }
 \value{
 a list with distributions
@@ -31,7 +47,7 @@ such objects.
 dag  <- matrix(0, 3, 3, dimnames = list(c("Z", "X", "Y"), c("Z", "X", "Y")))
 dag[upper.tri(dag)] <- 1
 rand_dist(dag, "cat", nlev = rep(3, 3), alpha = 1)
-rand_dist(dag, "cat", nlev = rep(3, 3), method = "cm", alpha = 10)
+rand_dist(dag, "cat", nlev = rep(3, 3), rand_cpt = rand_cpt_cm, ess = 1000)
 }
 \seealso{
 \code{\link[=rand_cpt]{rand_cpt()}}

@@ -1,14 +1,14 @@
 Package: randbn
 Type: Package
 Title: Simulate bayesian networks
-Version: 0.1.0
+Version: 0.1.1
 Author: Vera Kvisgaard
 Maintainer: The package maintainer <verakvisgaard@gmail.com>
 Description: The package includes simple routines for simulating bayesian networks, 
    that is DAGs and local distributions. These are compatible with the bn.fit class of the bnlearn package.
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Suggests: 
     stats,
     bnlearn,

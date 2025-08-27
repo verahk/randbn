@@ -44,16 +44,53 @@ d <- 1             # expected number of neighbours
 nlev <- rep(2, n)  # cardinality of each variable
 
 set.seed(r)
-rand_bn(n, d, "cat", nlev = nlev, alpha = 1)
+bn <- rand_bn(n, d, "cat", nlev = nlev, alpha = 1)
+bn
 ```
 Replicate with the distinct functions:
 ```{r}
 set.seed(r)
 dag  <- rand_dag(n, d) # draw an adjacency matrix 
 dist <- rand_dist(dag, "cat", nlev = nlev, alpha = 1)  # draw set of local dist
-bn   <- custom_bn(dag, dist, use_bnlearn = FALSE)       # construct bn.fit() object
-bn
+bn1  <- custom_bn(dag, dist, use_bnlearn = FALSE)       # construct bn.fit() object
+all.equal(bn1, bn)
 ```
+
+## Example 2: Add intervention node to bn 
+```{r}
+
+dag <- matrix(0, 2, 2)
+dag[1, 2] <- 1
+dist <- rand_dist(dag, "cat", nlev = rep(2, ncol(dag)), alpha = 1)
+bn <- custom_bn(dag, dist)
+
+# generate a new intervention node to produce an augmented network
+node <- new_node("I", children = "X2", prob = array(1:0, 2, list(I = c("off", "on"))))
+ls.str(node)
+
+# imperfect intervention: 
+# - draw local intervention distributions from a uniform Dirichlet
+bn_augmented <- add_node_to_bn(bn, node)
+bn_augmented$X2
+
+# almost-perfect intervention: 
+# - draw local intervention distributions from a the same, skewed Dirichlet
+mu <- c(.9, .1)
+ess <- 1000
+bn_augmented <- add_node_to_bn(bn, node, alpha = mu*ess)
+bn_augmented$X2
+
+# perfect intervention: deterministic local intervention distributions 
+generate_local_dist <- function(dims) {
+  new_rows <- array(0,  dims)
+  for (ss in 1:(dims[3]-1)) new_rows[ss,,ss] <- 1
+  return(new_rows)
+}
+bn_augmented <- add_node_to_bn(bn, node, generate_local_dist = generate_local_dist)
+bn_augmented$X2
+
+```
+
 
 
 

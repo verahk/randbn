@@ -10,27 +10,26 @@
 #' @return an object of class [bnlearn::bn.fit]
 #' @export
 #'
-#' @examples
 custom_bn <- function(dag, dist, use_bnlearn = TRUE) {
   n <- ncol(dag)
-  varnames <- colnames(dag)
-  if (is.null(varnames)) {
-    varnames <- paste0("X", seq_len(ncol(dag)))
-  }
+  stopifnot(length(names(dist)) == n)
+  varnames <- names(dist)
 
   if (use_bnlearn) {
-    colnames(dag) <- rownames(dag) <- varnames
+    colnames(dag)  <- varnames
+    rownames(dag) <- varnames 
     names(dist) <- varnames
-    bn <- bnlearn::empty.graph(colnames(dag))
+    bn <- bnlearn::empty.graph(varnames)
     bnlearn::amat(bn) <- dag
     return(bnlearn::custom.fit(bn, dist))
   } else {
     bn <- stats::setNames(vector("list", n), varnames)
-    for (j in seq_along(bn)) {
+    for (j in seq_len(n)) {
       node <- list(node = varnames[j],
                    parents = varnames[which(dag[, j] == 1)],
-                   children = varnames[which(dag[, j] == 1)],
-                   prob = dist[[j]])
+                   children = varnames[which(dag[j, ] == 1)])
+      stopifnot(all(lengths(dimnames(dist[[j]])) > 0))
+      node$prob <- aperm(dist[[j]], c(node$node, node$parents))
       class(node) <- "bn.fit.dnode"
       bn[[j]] <- node
     }

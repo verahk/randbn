@@ -11,7 +11,7 @@ rand_bn(n, d, type = "cat", use_bnlearn = TRUE, ...)
 
 \item{d}{(integer) expected number of neighbours}
 
-\item{type}{(character) type of distribution. Ignored if \code{rand_local_dist} is not \code{NULL}.}
+\item{type}{(character) type of distribution.}
 
 \item{use_bnlearn}{use \code{\link[bnlearn:bn.fit]{bnlearn::custom.fit()}} to construct the bn.fit object (implies a set of checks of the input) or hardcode such an object (with no checks).}
 

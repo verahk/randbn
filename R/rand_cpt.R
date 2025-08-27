@@ -5,82 +5,105 @@
 #' If the scope of the CPT is specified, the function returns an array with
 #' named dimensions, a format accepted for local distributions by [bnlearn::bn.fit.dnode].
 #'
-#' @param nlev (integer vector) of cardinality of the outcome variable and the
+#' @param dims (integer vector) of cardinality of the outcome variable and the
 #'  parent variables (the dimensions of the CPT). First element correspond to the outcome,
 #'  the rest to its parents.
-#' @param alpha (numeric vector)
-#' @param method (character) Which method to use. The direct method (default) is
-#' to assume `alpha` specifies the Dirichlet hyperparameters associated with each
-#' outcome. Specifically, a symmetric Dirichlet distribution if `alpha` is a constant,
-#' a single Dirichlet distribution if `alpha` is a vector of length `nlev[1]` or
-#' a (possibly) unique Dirichlet distribution for each parent level if `alpha` is
-#' of length `prod(nlev)`. If method equals `CM`, each conditional distribution is
-#' drawn by perturbing a vector of means as described in XX.  `alpha` is then taken
-#' to be the imaginary sample size / precision parameter controlling the variance of
-#' the Dirichlet distribution.
-#' @param scope (character vector) names of the variables. Defaults to `names(nlev)`.
-#'
-#' @return an array with dimension `nlev` representing a CPT.
+#' @param alpha (numeric vector) hyperparameters for the Dirichlet distribution(s)
+#'  each parameter vector is drawn from.
+#' @param ess (numeric constant) imaginary sample size 
+#' @param dimnms (list) dimnames of CPT.
+#' @param scope (character vector) names of the dimnames. If `scope` is specified and
+#' `dimnms = NULL`, the dimnames for the `j`th margin is sat equal to `0, 1, .., dims[j]-1.`
+#' @details
+#' `rand_cpt()` assumes `alpha` is the hyperparameters of the Dirichlet distribution(s)
+#' that each parameter vector in the CPT is sampled from. 
+#' Each vector is sampled from
+#' 
+#' - a single, symmetric Dirichlet if `length(alpha) == 1`.
+#' - a single, possible non-symmetric Dirichlet if `length(alpha) == dims[1]`.
+#' - possibly distinct, non-symmetric Dirichlets if `length(alpha) == prod(dims)`.
+#' 
+#' Hence, one can specify the Dirichlet (for each parent configuration) also by 
+#' a vector of means `mu` and an equivalent sample size `ess`, and call `rand_cpt(dims, alpha = mu*ess)`. 
+#' `rand_cpt_cm()` does exactly this. The mean-vector is specified and peturbated
+#' for each parent configuration as described in CM [TODO: add reference].
+#' 
+#' @return an array with dimension `dims` representing a CPT.
 #' @export
 #'
 #' @examples
 #'
 #' # no parents
-#' cpt <- rand_cpt(nlev = 2, scope = "Y")
+#' cpt <- rand_cpt(dims = 2, scope = "Y")
 #' cpt
 #' dimnames(cpt)
 #'
 #' # two parents
 #' cpt <- rand_cpt(2:4, scope = c("Y", "X", "Z"))
 #' cpt
+#' 
+#' # cm-method with alternating means
+#' cpt <- rand_cpt_cm(rep(2, 3), ess = 1000, scope = c("Y", "X", "Z"))
+#' cpt  # every second parameter vector is drawn from the same Dirichlet
 #'
 #' # with local structure
 #' \dontrun{
-#' cpt <- rand_cpt(nlev, local_struct = "tree", prob = 1, maxdepth = .5)
+#' cpt <- rand_cpt(dims, local_struct = "tree", prob = 1, maxdepth = .5)
 #' }
 
-rand_cpt <- function(nlev,
+
+rand_cpt <- function(dims,
                      alpha = 1,
-                     method = c("direct", "cm"),
-                     scope = character(),
-                     ...) {
+                     dimnms = NULL,
+                     scope = names(dimnames)) {
 
-  method <- match.arg(method)
+  r <- dims[1]
+  q <- prod(dims[-1])
 
-  r <- nlev[1]
-  q <- prod(nlev[-1])
-
-  if (method == "cm") {
-    tmp <- 1/seq_len(r)
-    mu <- tmp/sum(tmp)
-    p <- matrix(NA, r, q)
-    for (qq in seq_len(q)){
-      p[, qq] <- rDirichlet(1, alpha*mu)
-      mu <- c(mu[r], mu[-r])
-    }
+  # draw one Dirichlet vector for each parent config
+  if (length(alpha) == 1) {
+    p <- t(rDirichlet(q, rep(alpha, r), r))
+  } else if (length(alpha) == r) {
+    p <- t(rDirichlet(q, alpha, r))
+  } else if (length(alpha) == q*r) {
+    p <- vapply(split(alpha, rep(seq_len(q), each = r)),
+                rDirichlet, n = 1, k = r,
+                numeric(r))
   } else {
-    # draw one Dirichlet vector for each parent config
-    if (length(alpha) == 1) {
-      p <- t(rDirichlet(q, rep(alpha, r), r))
-    } else if (length(alpha) == r) {
-      p <- t(rDirichlet(q, alpha, r))
-    } else if (length(alpha) == q*r) {
-      p <- vapply(split(alpha, rep(seq_len(q), each = r)),
-                  rDirichlet, n = 1, k = r,
-                  numeric(r))
-    } else {
-      stop("The hyperparamter alpha must be either length 1, nlev[1] or prod(nlev).")
+    stop("The hyperparamter alpha must be either length 1, dims[1] or prod(dims).")
+  }
+  
+  
+  # set dimension of array
+  dim(p) <- dims
+
+  # set dimnames if specified 
+  if (!is.null(scope)) {
+    if (is.null(dimnms)) {
+      dimnms <- lapply(dims-1, seq.int, from = 0)
     }
-  }
-
-
-  dim(p) <- nlev
-  if (length(scope) > 0) {
-    dimnames <- lapply(nlev-1, seq.int, from = 0)
-    names(dimnames) <- scope
-    dimnames(p) <- dimnames
-  }
+    names(dimnms) <- scope
+    dimnames(p) <- dimnms
+  } 
+  
   return(p)
+}
+
+#' @rdname rand_cpt 
+#' @details 
+#' `rand_cpt()` draw a vector from a single or a set of Dirichlet distribution as specified 
+#' by `alpha`. 
+
+#' @export 
+rand_cpt_cm <- function(dims, ess = 10, dimnms = NULL, scope = names(dimnms)) {
+  r <- dims[1]
+  q <- prod(dims[-1])
+  tmp <- 1/seq_len(r)
+  mu <- matrix(tmp/sum(tmp), r, q)
+  for (qq in seq_len(q)[-1]){
+    mu[, qq] <- c(mu[r, qq-1], mu[-r, qq-1])
+  }
+  rand_cpt(dims, alpha = ess*mu, dimnms = dimnms, scope = scope)
 }
 
 #' @param local_struct (character) name of algorithm to form a partitioning /
@@ -88,18 +111,18 @@ rand_cpt <- function(nlev,
 #'  Defaults to `"none"`, which returns a CPT with no parameter restrictions.
 #' @param ... additional arguments sendt to [rand_partition].
 # rand_cpt_lstruct <- function() {
-#   is_local_struct <- length(nlev) > 2 && local_struct != "none"
+#   is_local_struct <- length(dims) > 2 && local_struct != "none"
 #
 #   if (is_local_struct) {
 #     args <- list(...)
-#     args$nlev <- nlev[-1]
+#     args$dims <- dims[-1]
 #     args$method <- local_struct
 #     print(args)
 #     tmp <- do.call(rand_partition, args)
 #     print(tmp)
 #     q <- length(unique(tmp$parts))
 #   } else {
-#     q <- prod(nlev[-1])
+#     q <- prod(dims[-1])
 #   }
 #
 #   if (is_local_struct) {
