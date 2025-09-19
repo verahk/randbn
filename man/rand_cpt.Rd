@@ -29,6 +29,10 @@ each parameter vector is drawn from.}
 \code{dimnms = NULL}, the dimnames for the \code{j}th margin is sat equal to \verb{0, 1, .., dims[j]-1.}}
 
 \item{ess}{(numeric constant) imaginary sample size}
+
+\item{shuffle}{(logical) if \code{FALSE}, the mean vector is peturbed in the order of
+each parent configuration. If \code{TRUE}, it is randomly peturbed with respect
+to the parent configurations.}
 }
 \value{
 an array with dimension \code{dims} representing a CPT.
@@ -53,9 +57,6 @@ Hence, one can specify the Dirichlet (for each parent configuration) also by
 a vector of means \code{mu} and an equivalent sample size \code{ess}, and call \code{rand_cpt(dims, alpha = mu*ess)}.
 \code{rand_cpt_cm()} does exactly this. The mean-vector is specified and peturbated
 for each parent configuration as described in CM \link{TODO: add reference}.
-
-\code{rand_cpt()} draw a vector from a single or a set of Dirichlet distribution as specified
-by \code{alpha}.
 }
 \examples{
 

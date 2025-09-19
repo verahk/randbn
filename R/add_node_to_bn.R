@@ -19,7 +19,7 @@ add_node_to_bn <- function(bn, node, generate_local_dist = randbn::rand_cpt, ...
 
   
   # check that node the additional node results in a valid DAG
-  if (! check_new_node(bn, node)) return (NULL)
+  stopifnot(check_new_node(bn, node))
   
   # add node to new bn 
   new_bn <- unclass(bn)

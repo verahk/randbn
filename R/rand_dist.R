@@ -30,6 +30,7 @@
 #' rand_dist(dag, "cat", nlev = rep(3, 3), alpha = 1)
 #' rand_dist(dag, "cat", nlev = rep(3, 3), rand_cpt = rand_cpt_cm, ess = 1000)
 
+
 rand_dist <- function(dag, type = "cat", ...) {
   args <- list(...)
   switch(type, 
@@ -43,10 +44,14 @@ rand_dist_cat <- function(dag, nlev = lengths(levels), levels = NULL, rand_cpt =
   n <- ncol(dag)
   seqn <- seq_len(n)
   
+  if (length(nlev) != n) stop("argument `nlev` must be of length 1 or `ncol(dag)`")
+
+  
   # init named list in which to store local distributions
   if (is.null(colnames(dag))) colnames(dag) <- paste0("X", seqn)
   dist <- stats::setNames(vector("list", n), colnames(dag))
   
+  # dimnames 
   if (is.null(levels)) {
     if (is.null(nlev)) stop("Arguments must include cardinality of each node, specified as a list `levels` or a vector `nlev`.")
     levels <- lapply(nlev-1, seq.int, from = 0)

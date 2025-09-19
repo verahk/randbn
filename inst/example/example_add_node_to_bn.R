@@ -19,7 +19,7 @@ bnlearn::amat(bn2)
 
 # the new DAG structure is checked with pcalg::isValidGraph
 node <- new_node(name, parents, children = parents, prob)
-add_node_to_bn(bn, node) # returns NULL + message from pcalg::isValidGraph
+try(add_node_to_bn(bn, node)) # returns NULL + message from pcalg::isValidGraph
 
 # add new parent to a node 
 child_node <- bn$X2
