@@ -1,0 +1,24 @@
+---
+title: "Partitioned CPTs"
+format: html
+editor: visual
+---
+
+```{r}
+library(randbn)
+```
+
+```{r}
+
+dims <- 2:4
+names(dims) <- LETTERS[seq_along(dims)]
+p <- .1 
+method <- "tree"
+regular <- TRUE
+P <- rand_partition(dims, p,method, regular)
+P
+```
+
+```{r}
+cpt <- rand_cpt(c(2, length(P)))
+```
