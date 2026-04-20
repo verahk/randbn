@@ -2,18 +2,15 @@
 % Please edit documentation in R/rand_tree.R
 \name{rand_tree}
 \alias{rand_tree}
-\alias{print.tree}
-\alias{summary.tree}
-\alias{predict.tree}
+\alias{make_tree_regular}
+\alias{partition_from_tree}
 \title{Grow a random decision tree}
 \usage{
 rand_tree(dims, p, mindepth = 0, maxdepth = length(dims), regular = TRUE)
 
-\method{print}{tree}(tree, prefix = "")
+make_tree_regular(tree, dims)
 
-\method{summary}{tree}(tree)
-
-\method{predict}{tree}(tree, newdata)
+partition_from_tree(tree, newdata)
 }
 \arguments{
 \item{dims}{}
@@ -35,9 +32,8 @@ names(dims) <- letters[seq_along(dims)]
 tree <- rand_tree(dims, .5)
 tree
 
-# predict  
 newdata <- expand.grid(lapply(dims-1, seq.int, from = 0))
-predict(tree, newdata)
+partition_from_tree(tree, newdata)
  
 # full depth
 tree <- rand_tree(dims, 1) 

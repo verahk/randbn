@@ -15,96 +15,87 @@
 #' dims <- 2:4
 #' names(dims) <- letters[seq_along(dims)]
 #' tree <- rand_tree(dims, .5)
-#' tree
+#' cat(tree, sep = "")
 #' 
-#' # predict  
-#' newdata <- expand.grid(lapply(dims-1, seq.int, from = 0))
-#' predict(tree, newdata)
+#' configs <- expand.grid(lapply(dims-1, seq.int, from = 0))
+#' parts   <- partition_from_tree(tree, newdata)
+#' cbind(configs, parts)
 #'  
 #' # full depth
 #' tree <- rand_tree(dims, 1) 
-#' summary(tree)$nparts == prod(dims)
+#' cat(tree, sep = "")
 #' 
 #' # no splits
 #' tree <- rand_tree(dims, 0) 
-#' summary.tree(tree)$nparts == 1
+#' cat(tree, sep = "")
 #' 
 #' # stump / one split
 #' tree <- rand_tree(dims, 0, mindepth = 1)
-#' tree 
+#' cat(tree, sep = "")
 #' 
 #' # mindepth and maxdepth overrules `p`
 #' tree <- rand_tree(dims, 0, mindepth = length(dims)) 
-#' summary.tree(tree)$nparts == prod(dims)
+#' cat(tree, sep = "")
 #' tree <- rand_tree(dims, 1, maxdepth = 0) 
-#' summary.tree(tree)$nparts == 1
+#' cat(tree, sep = "")
 #'  
 #' 
-#' # regular
-#' tree <- rand_tree(dims, 0, mindepth = 1) 
-#' tree <- make_regular(tree, dims)
+#' # regular overrules `mindepth`
+#' tree <- rand_tree(dims, 1, maxdepth = 0, regular = TRUE) 
+#' cat(tree, sep = "")
 #' 
-rand_tree <- function(dims, p, mindepth = 0, maxdepth = length(dims), regular = TRUE) {
+#' # split vars is added to a rando leaf
+#' #' tree <- rand_tree(dims, 1, maxdepth = 0, regular = TRUE) 
+#' cat(tree, sep = "")
+#' 
+rand_tree <- function(dims, p, mindepth = 0, maxdepth = length(dims), regular = FALSE) {
   
-  # grow a random decision tree
-  grow_tree <- function(dims, p, branch, mindepth, maxdepth) {
-    depth <- stringr::str_count(branch, "\\|")
-    if ((length(dims) == 0) || depth >= maxdepth || (depth >= mindepth && runif(1) > p)) {
-      out <- sprintf("%s--\n", branch)
-    } else {
-      var <- sample.int(length(dims), 1)
-      split  <- sprintf("%s-+ %s:\n", branch, names(dims)[[var]])
-      new_branch <- paste0(branch, " | ")
-      out <- c(split, unlist(lapply(seq_len(dims[[var]]), 
-                                    function(x) grow_tree(dims[-var], p, new_branch, mindepth, maxdepth))))
-    }
-     return(out)
-  }
   tree <- grow_tree(dims, p, branch = "", mindepth = mindepth, maxdepth = maxdepth)
   
-  
-
   if (regular) {
-    make_regular <- function(tree, dims) {
-      predictors <- summary.tree(tree)$predictors
-      if (length(predictors) < length(dims)) {
-        missing_variables <- setdiff(names(dims), predictors)
-        for (v in missing_variables) {
-          pos  <- sample(grep("--\n$", tree), 1)   # draw a random leaf
-          leaf <- tree[pos]
-          new_branch <- grow_tree(dims[v], 1, gsub("--\n$", "", leaf), mindepth = 1, maxdepth = Inf)
-          tree <- append(tree[-pos], new_branch, pos-1)
-        }
-      }
-      return(tree)
-    }
-    tree <- make_regular(tree, dims)
+    tree <- make_tree_regular(tree, dims)
   }
   
-  # return tree
-  structure(tree, class = "tree")
+  tree
+}
+
+# grow a random decision tree
+grow_tree <- function(dims, p, branch, mindepth, maxdepth) {
+  depth <- stringr::str_count(branch, "\\|")
+  if ((length(dims) == 0) || depth >= maxdepth || (depth >= mindepth && runif(1) > p)) {
+    out <- sprintf("%s--\n", branch)
+  } else {
+    var <- sample.int(length(dims), 1)
+    split  <- sprintf("%s-+ %s:\n", branch, names(dims)[[var]])
+    new_branch <- paste0(branch, " | ")
+    out <- c(split, unlist(lapply(seq_len(dims[[var]]), 
+                                  function(x) grow_tree(dims[-var], p, new_branch, mindepth, maxdepth))))
+  }
+  return(out)
 }
 
 #' @rdname rand_tree
 #' @export
-print.tree <- function(tree, prefix = "") {
- cat(tree, sep = "")
+make_tree_regular <- function(tree, dims) {
+ splits <- grepl("-\\+", tree)
+ predictors <- unique(stringr::str_match(tree[splits], "-\\+ (.*):")[, 2])
+  if (length(predictors) < length(dims)) {
+    missing_variables <- setdiff(names(dims), predictors)
+    for (v in missing_variables) {
+      pos  <- sample(grep("--\n$", tree), 1)   # draw a random leaf
+      leaf <- tree[pos]
+      new_branch <- grow_tree(dims[v], 1, gsub("--\n$", "", leaf), mindepth = 1, maxdepth = Inf)
+      tree <- append(tree[-pos], new_branch, pos-1)
+    }
+  }
+  return(tree)
 }
+
+
 
 #' @rdname rand_tree
 #' @export
-summary.tree <- function(tree) {
-  
-  leaves <- grepl("--\n$", tree)
-  splits <- grepl("-\\+", tree)
-  
-  list(nparts = sum(leaves),
-       predictors = unique(stringr::str_match(tree[splits], "-\\+ (.*):")[, 2]))
-}
-
-#' @rdname rand_tree
-#' @export
-predict.tree <- function(tree, newdata) {
+partition_from_tree <- function(tree, newdata) {
   if (!length(dim(newdata)) == 2) stop("newdata must be a matrix or data.frame")
   if (is.null(colnames(newdata))) stop("newdata must have column names")
   

@@ -159,25 +159,42 @@ rand_cpt_cm <- function(dims, ess = 10, shuffle = FALSE, dimnms = NULL, scope = 
 #' p <- 0
 #' mindepth <- 0 
 #' maxdepth <- 0
-#' regular <- TRUE
+#' regular <- TRUE 
+#' 
+#' # draw tree
+#' set.seed(007)
+#' tree <- rand_tree(dims[-1], p, mindepth, maxdepth, regular)
+#' cat(tree, sep = "") 
+#' 
+#' # draw CPT consistent with tree 
+#' set.seed(007)
 #' rand_tree_cpt(dims, p, mindepth, maxdepth, regular, method = "constant-mean")
 rand_tree_cpt <- function(dims, p, mindepth = 0, maxdepth = length(dims), regular = TRUE, ...) {
   
   if (length(dims) > 2) {
     # partition parent space 
-    if (is.null(names(dims))) names(dims) <- c("y", paste0("X", seq_along(dims[-1])))
+    if (!is.null(list(...)$scope)) {
+      names(dims) <- list(...)$scope
+    }
+    if (is.null(names(dims))) {
+      names(dims) <- c("y", paste0("X", seq_along(dims[-1])))
+    }
     tree <- rand_tree(dims[-1], p, mindepth = mindepth, maxdepth = maxdepth, regular = regular)
     configs <- bida:::expand_grid_fast(k = dims[-1]) 
     colnames(configs) <- names(dims[-1])
-    partition <- predict(tree, configs)
+    partition <- partition_from_tree(tree, configs)
    
     # draw CPT over unique rows of CPT 
     tmp <- rand_cpt(c(dims[1], length(unique(partition))), ...)
-    array(tmp[, partition], dims)
+    
+    array(tmp[, partition], 
+          dims, 
+          dimnames = setNames(lapply(dims-1, seq.int, from = 0), names(dims)))
   } else {
     rand_cpt(dims, ...)
   }
 }
+
 #' @param local_struct (character) name of algorithm to form a partitioning /
 #'  produce parameter restrictions.
 #'  Defaults to `"none"`, which returns a CPT with no parameter restrictions.
