@@ -71,17 +71,18 @@ rand_cpt <- function(dims,
   r <- dims[1]
   q <- prod(dims[-1])
   
-  if (method == "const-mean") {
+  if (method == "constant-mean") {
     # create matrix with means of each outcome
     tmp <- 1/seq_len(r)
     mu <- matrix(tmp/sum(tmp), r, q)
-    for (qq in seq_len(q)[-1]){
-      mu[, qq] <- c(mu[r, qq-1], mu[-r, qq-1])
-    }
     
     # shuffle rows in CPT
     if (shuffle) {
       mu <- mu[, sample(seq_len(q))]
+    } else {
+      for (qq in seq_len(q)[-1]){
+        mu[, qq] <- c(mu[r, qq-1], mu[-r, qq-1])
+      }
     }
     alpha <- ess*mu
   }
@@ -172,6 +173,7 @@ rand_cpt_cm <- function(dims, ess = 10, shuffle = FALSE, dimnms = NULL, scope = 
 rand_tree_cpt <- function(dims, p, mindepth = 0, maxdepth = length(dims), regular = TRUE, ...) {
   
   if (length(dims) > 2) {
+    
     # partition parent space 
     if (!is.null(list(...)$scope)) {
       names(dims) <- list(...)$scope
