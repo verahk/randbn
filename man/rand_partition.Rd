@@ -4,16 +4,16 @@
 \alias{rand_partition}
 \title{Draw a random partition of an outcome space}
 \usage{
-rand_partition(dims, prob, method = "tree", regular = FALSE, ...)
+rand_partition(method = "tree", dims, prob, regular = FALSE, ...)
 }
 \arguments{
+\item{method}{name of partitioning algorithm.}
+
 \item{dims}{cardinality of the variables.}
 
 \item{prob}{parameter controlling the size of the partition.}
 
-\item{method}{name of partitioning algorithm.}
-
-\item{regular}{If \code{TRUE}, the partition is forced to be regular. See \link[bida:make_regular]{bida::make_regular}.}
+\item{regular}{if \code{TRUE}, the partition is forced to be regular. See \link[bida:make_regular]{bida::make_regular}.}
 }
 \value{
 an vector of length \code{prod(dims)} assigning each joint outcome to a
@@ -26,12 +26,12 @@ Draw a random partition of an outcome space
 
 set.seed(1)
 dims <- c(2, 2, 2)
-rand_partition(dims, .75, method = "tree")
+rand_partition("tree", dims, .75)
 
 # tree of given depth
-rand_partition(dims, 1, "tree", maxdepth = 1)
-rand_partition(dims, 1, "tree", maxdepth = .5)
+rand_partition("tree", dims, 1, maxdepth = 1)
+rand_partition("tree", dims, 1, maxdepth = .5)
 
 # tree of given depth, forced to be regular
-rand_partition(dims, 1, "tree", maxdepth = 1, regular = TRUE)
+rand_partition("tree", dims, 1, maxdepth = 1, regular = TRUE)
 }

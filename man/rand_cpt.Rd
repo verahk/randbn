@@ -5,7 +5,15 @@
 \alias{rand_cpt_cm}
 \title{Draw a conditional probability table (CPT)}
 \usage{
-rand_cpt(dims, alpha = 1, dimnms = NULL, scope = names(dimnames))
+rand_cpt(
+  dims,
+  alpha = 1,
+  dimnms = NULL,
+  scope = names(dimnms),
+  method = "default",
+  shuffle = FALSE,
+  ess = 10
+)
 
 rand_cpt_cm(
   dims,
@@ -28,11 +36,11 @@ each parameter vector is drawn from.}
 \item{scope}{(character vector) names of the dimnames. If \code{scope} is specified and
 \code{dimnms = NULL}, the dimnames for the \code{j}th margin is sat equal to \verb{0, 1, .., dims[j]-1.}}
 
-\item{ess}{(numeric constant) imaginary sample size}
-
-\item{shuffle}{(logical) if \code{FALSE}, the mean vector is peturbed in the order of
-each parent configuration. If \code{TRUE}, it is randomly peturbed with respect
+\item{shuffle}{(logical) if \code{FALSE}, the mean vector is perturbed in the order of
+each parent configuration. If the  If \code{TRUE}, it is randomly perturbed with respect
 to the parent configurations.}
+
+\item{ess}{(numeric constant) imaginary sample size}
 }
 \value{
 an array with dimension \code{dims} representing a CPT.

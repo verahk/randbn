@@ -62,10 +62,29 @@
 rand_cpt <- function(dims,
                      alpha = 1,
                      dimnms = NULL,
-                     scope = names(dimnames)) {
+                     scope = names(dimnms),
+                     method = "default", 
+                     shuffle = FALSE, 
+                     ess = 10) {
+  
 
   r <- dims[1]
   q <- prod(dims[-1])
+  
+  if (method == "const-mean") {
+    # create matrix with means of each outcome
+    tmp <- 1/seq_len(r)
+    mu <- matrix(tmp/sum(tmp), r, q)
+    for (qq in seq_len(q)[-1]){
+      mu[, qq] <- c(mu[r, qq-1], mu[-r, qq-1])
+    }
+    
+    # shuffle rows in CPT
+    if (shuffle) {
+      mu <- mu[, sample(seq_len(q))]
+    }
+    alpha <- ess*mu
+  }
 
   # draw one Dirichlet vector for each parent config
   if (length(alpha) == 1) {
@@ -77,7 +96,7 @@ rand_cpt <- function(dims,
                 rDirichlet, n = 1, k = r,
                 numeric(r))
   } else {
-    stop("The hyperparamter alpha must be either length 1, dims[1] or prod(dims).")
+    stop("The length of alpha must be either 1, dims[1] or prod(dims).")
   }
   
   
@@ -98,8 +117,8 @@ rand_cpt <- function(dims,
 
 #' @rdname rand_cpt 
 #' @param ess (numeric constant) imaginary sample size 
-#' @param shuffle (logical) if `FALSE`, the mean vector is peturbed in the order of
-#' each parent configuration. If `TRUE`, it is randomly peturbed with respect
+#' @param shuffle (logical) if `FALSE`, the mean vector is perturbed in the order of
+#' each parent configuration. If the  If `TRUE`, it is randomly perturbed with respect
 #' to the parent configurations.
 #' @export 
 rand_cpt_cm <- function(dims, ess = 10, shuffle = FALSE, dimnms = NULL, scope = names(dimnms)) {
@@ -114,13 +133,51 @@ rand_cpt_cm <- function(dims, ess = 10, shuffle = FALSE, dimnms = NULL, scope = 
   }
   
   # shuffle rows in CPT
-  indx <- seq_len(q)
-  if (shuffle) indx <- sample(indx)
-  mu <- mu[, indx]
+  if (shuffle) {
+    mu <- mu[, sample(seq_len(q))]
+  }
+
   
   rand_cpt(dims, alpha = ess*mu, dimnms = dimnms, scope = scope)
 }
 
+#' Title
+#'
+#' @param dims 
+#' @param p 
+#' @param mindepth 
+#' @param maxdepth 
+#' @param regular 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+#' dims <- c(a = 2, b = 2, c = 2)
+#' p <- 0
+#' mindepth <- 0 
+#' maxdepth <- 0
+#' regular <- TRUE
+#' rand_tree_cpt(dims, p, mindepth, maxdepth, regular, method = "constant-mean")
+rand_tree_cpt <- function(dims, p, mindepth = 0, maxdepth = length(dims), regular = TRUE, ...) {
+  
+  if (length(dims) > 2) {
+    # partition parent space 
+    if (is.null(names(dims))) names(dims) <- c("y", paste0("X", seq_along(dims[-1])))
+    tree <- rand_tree(dims[-1], p, mindepth = mindepth, maxdepth = maxdepth, regular = regular)
+    configs <- bida:::expand_grid_fast(k = dims[-1]) 
+    colnames(configs) <- names(dims[-1])
+    partition <- predict(tree, configs)
+   
+    # draw CPT over unique rows of CPT 
+    tmp <- rand_cpt(c(dims[1], length(unique(partition))), ...)
+    array(tmp[, partition], dims)
+  } else {
+    rand_cpt(dims, ...)
+  }
+}
 #' @param local_struct (character) name of algorithm to form a partitioning /
 #'  produce parameter restrictions.
 #'  Defaults to `"none"`, which returns a CPT with no parameter restrictions.

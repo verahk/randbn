@@ -2,20 +2,29 @@
 % Please edit documentation in R/rand_tree.R
 \name{rand_tree}
 \alias{rand_tree}
+\alias{print.tree}
+\alias{summary.tree}
+\alias{predict.tree}
 \title{Grow a random decision tree}
 \usage{
-rand_tree(dims, p, branch = "", mindepth = 1, maxdepth = length(dims))
+rand_tree(dims, p, mindepth = 0, maxdepth = length(dims), regular = TRUE)
+
+\method{print}{tree}(tree, prefix = "")
+
+\method{summary}{tree}(tree)
+
+\method{predict}{tree}(tree, newdata)
 }
 \arguments{
 \item{dims}{}
 
 \item{p}{}
 
-\item{branch}{}
-
 \item{mindepth}{}
 
 \item{maxdepth}{}
+
+\item{branch}{}
 }
 \description{
 Grow a random decision tree
@@ -25,12 +34,22 @@ dims <- 2:4
 names(dims) <- letters[seq_along(dims)]
 tree <- rand_tree(dims, .5)
 tree
+
+# predict  
+newdata <- expand.grid(lapply(dims-1, seq.int, from = 0))
+predict(tree, newdata)
  
+# full depth
 tree <- rand_tree(dims, 1) 
 summary(tree)$nparts == prod(dims)
 
-tree <- rand_tree(dims, 0, mindepth = 0) 
+# no splits
+tree <- rand_tree(dims, 0) 
 summary.tree(tree)$nparts == 1
+
+# stump / one split
+tree <- rand_tree(dims, 0, mindepth = 1)
+tree 
 
 # mindepth and maxdepth overrules `p`
 tree <- rand_tree(dims, 0, mindepth = length(dims)) 
@@ -38,12 +57,9 @@ summary.tree(tree)$nparts == prod(dims)
 tree <- rand_tree(dims, 1, maxdepth = 0) 
 summary.tree(tree)$nparts == 1
  
-# predict   
-newdata <- expand.grid(lapply(dims-1, seq.int, from = 0))
-predict(tree, newdata)
 
 # regular
 tree <- rand_tree(dims, 0, mindepth = 1) 
-make_regular(tree, dims)
+tree <- make_regular(tree, dims)
 
 }
