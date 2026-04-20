@@ -44,9 +44,6 @@
 #' tree <- rand_tree(dims, 1, maxdepth = 0, regular = TRUE) 
 #' cat(tree, sep = "")
 #' 
-#' # split vars is added to a rando leaf
-#' #' tree <- rand_tree(dims, 1, maxdepth = 0, regular = TRUE) 
-#' cat(tree, sep = "")
 #' 
 rand_tree <- function(dims, p, mindepth = 0, maxdepth = length(dims), regular = FALSE) {
   
@@ -82,7 +79,9 @@ make_tree_regular <- function(tree, dims) {
   if (length(predictors) < length(dims)) {
     missing_variables <- setdiff(names(dims), predictors)
     for (v in missing_variables) {
-      pos  <- sample(grep("--\n$", tree), 1)   # draw a random leaf
+      pos_leaves <- grep("--\n$", tree) # position of leaves in the tree
+      depths <- stringr::str_count(tree[pos_leaves], pattern = "\\|") 
+      pos  <- pos_leaves[which.min(depths)]   # find the shallowest leaf
       leaf <- tree[pos]
       new_branch <- grow_tree(dims[v], 1, gsub("--\n$", "", leaf), mindepth = 1, maxdepth = Inf)
       tree <- append(tree[-pos], new_branch, pos-1)
