@@ -70,8 +70,9 @@ rand_cpt <- function(dims,
 
   r <- dims[1]
   q <- prod(dims[-1])
+  method <- match.arg(method, c("default", "alternating-mean"))
   
-  if (method == "constant-mean") {
+  if (method == "alternating-mean") {
     # create matrix with means of each outcome
     tmp <- 1/seq_len(r)
     mu <- matrix(tmp/sum(tmp), r, q)
