@@ -71,7 +71,7 @@ rand_cpt <- function(dims,
   r <- dims[1]
   q <- prod(dims[-1])
   
-  if (method == "alternating-mean") {
+  if (method == "constant-mean") {
     # create matrix with means of each outcome
     tmp <- 1/seq_len(r)
     mu <- matrix(tmp/sum(tmp), r, q)
@@ -85,8 +85,6 @@ rand_cpt <- function(dims,
       }
     }
     alpha <- ess*mu
-  } else {
-    if (!method == "default") stop("Method not implemented.")
   }
 
   # draw one Dirichlet vector for each parent config
