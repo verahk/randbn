@@ -18,7 +18,7 @@
 #' cat(tree, sep = "")
 #' 
 #' configs <- expand.grid(lapply(dims-1, seq.int, from = 0))
-#' parts   <- partition_from_tree(tree, newdata)
+#' parts   <- partition_from_tree(tree, configs)
 #' cbind(configs, parts)
 #'  
 #' # full depth
@@ -79,7 +79,7 @@ make_tree_regular <- function(tree, dims) {
   if (length(predictors) < length(dims)) {
     missing_variables <- setdiff(names(dims), predictors)
     for (v in missing_variables) {
-      pos  <- sample( grep("--\n$", tree)) # sample a leaf
+      pos  <- sample(grep("--\n$", tree), 1) # sample a leaf
       leaf <- tree[pos]
       new_branch <- grow_tree(dims[v], 1, gsub("--\n$", "", leaf), mindepth = 1, maxdepth = Inf)
       tree <- append(tree[-pos], new_branch, pos-1)
