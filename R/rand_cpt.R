@@ -46,11 +46,11 @@
 #' cpt
 #' 
 #' # cm-method with alternating means
-#' cpt <- rand_cpt_cm(rep(2, 3), ess = 1000, scope = c("Y", "X", "Z"))
+#' cpt <- rand_cpt(rep(2, 4), ess = 1000, scope = LETTERS[1:4], method = "alternating-mean")
 #' cpt  # every second parameter vector is drawn from the same Dirichlet
 #'
 #' # cm-method with randomly peturbed mean vector
-#' cpt <- rand_cpt_cm(rep(2, 3), ess = 1000, shuffle = TRUE, scope = c("Y", "X", "Z"))
+#' cpt <- rand_cpt(rep(2, 4), ess = 1000, scope = LETTERS[1:4], method = "alternating-mean", shuffle = TRUE)
 #' cpt  # every second parameter vector is drawn from the same Dirichlet
 #' 
 #' # with local structure
@@ -73,38 +73,46 @@ rand_cpt <- function(dims,
   method <- match.arg(method, c("default", "alternating-mean"))
   
   if (method == "alternating-mean") {
-    # create matrix with means of each outcome
-    tmp <- 1/seq_len(r)
-    mu <- matrix(tmp/sum(tmp), r, q)
     
-    # shuffle rows in CPT
-    if (shuffle) {
-      mu <- mu[, sample(seq_len(q))]
-    } else {
-      for (qq in seq_len(q)[-1]){
-        mu[, qq] <- c(mu[r, qq-1], mu[-r, qq-1])
-      }
+    # create matrix with all permuations of the mean vector
+    mu <- 1/seq_len(r)
+    mu  <- mu/sum(mu)
+    
+    # draw CPDs from Dirichlet each peturbed mean-vector
+    p <- matrix(NA, q, r)
+    for (rr in seq_len(min(r, q))){
+      indx <- seq.int(rr, q, by = r)
+      p[indx, ] <- rDirichlet(length(indx), mu*ess, r)
+      mu <- c(mu[r], mu[-r])
     }
-    alpha <- ess*mu
-  }
+    # check 
+    # colMeans(p[seq.int(1, q, by = r),])
+    # colMeans(p[seq.int(2, q, by = r),])
+    # colMeans(p[seq.int(3, q, by = r),])
 
-  # draw one Dirichlet vector for each parent config
-  if (length(alpha) == 1) {
-    p <- t(rDirichlet(q, rep(alpha, r), r))
-  } else if (length(alpha) == r) {
-    p <- t(rDirichlet(q, alpha, r))
-  } else if (length(alpha) == q*r) {
-    p <- vapply(split(alpha, rep(seq_len(q), each = r)),
-                rDirichlet, n = 1, k = r,
-                numeric(r))
+    if (shuffle) {
+      p <- p[sample.int(q, replace = FALSE), ]  # shuffle columns of mu, i.e. the mean vector for each parent config
+    }
+    
+    p <- t(p)
   } else {
-    stop("The length of alpha must be either 1, dims[1] or prod(dims).")
+    # draw one Dirichlet vector for each parent config
+    if (length(alpha) == 1) {
+      p <- t(rDirichlet(q, rep(alpha, r), r))
+    } else if (length(alpha) == r) {
+      p <- t(rDirichlet(q, alpha, r))
+    } else if (length(alpha) == q*r) {
+      p <- vapply(split(alpha, rep(seq_len(q), each = r)),
+                  rDirichlet, n = 1, k = r,
+                  numeric(r))
+    } else {
+      stop("The length of alpha must be either 1, dims[1] or prod(dims).")
+    }
   }
   
-  
-  # set dimension of array
+  # set dimension of CPT array
   dim(p) <- dims
-
+  
   # set dimnames if specified 
   if (!is.null(scope)) {
     if (is.null(dimnms)) {
@@ -113,7 +121,6 @@ rand_cpt <- function(dims,
     names(dimnms) <- scope
     dimnames(p) <- dimnms
   } 
-  
   return(p)
 }
 
