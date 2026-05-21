@@ -76,7 +76,7 @@ rand_cpt <- function(dims,
     
     # create matrix with all permuations of the mean vector
     mu <- 1/seq_len(r)
-    mu  <- mu/sum(mu)
+    mu <- mu/sum(mu)
     
     # draw CPDs from Dirichlet each peturbed mean-vector
     p <- matrix(NA, q, r)
@@ -91,7 +91,7 @@ rand_cpt <- function(dims,
     # colMeans(p[seq.int(3, q, by = r),])
 
     if (shuffle) {
-      p <- p[sample.int(q, replace = FALSE), ]  # shuffle columns of mu, i.e. the mean vector for each parent config
+      p <- p[sample.int(q, replace = FALSE), ]  
     }
     
     p <- t(p)
